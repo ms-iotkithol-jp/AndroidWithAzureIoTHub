@@ -70,10 +70,25 @@ namespace AppDragonAndroidIoT
                 string content = "{\"message\":\"Hello from Dragon Board!\",\"Devicetime\":\"" + DateTime.Now.ToString("yyyy/MM/ddTHH:mm:ss") + "\"}";
                 await iotHubClient.SendEventAsync(new Microsoft.Azure.Devices.Client.Message(System.Text.Encoding.UTF8.GetBytes(content)));
                 sendingAvailable = true;
+                ReceiveMessages();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.Debug(TAG, "IoT Hub Error +" + ex.Message);
+            }
+        }
+
+        public async Task ReceiveMessages()
+        {
+            while (true)
+            {
+                var msg = await iotHubClient.ReceiveAsync();
+                if (msg != null)
+                {
+                    string content = System.Text.Encoding.UTF8.GetString(msg.GetBytes());
+                    Log.Debug(TAG, "Message Recievice - " + content);
+                    await iotHubClient.CompleteAsync(msg);
+                }
             }
         }
 
